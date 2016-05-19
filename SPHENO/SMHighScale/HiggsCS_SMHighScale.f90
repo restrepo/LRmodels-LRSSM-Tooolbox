@@ -3,14 +3,14 @@
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 8:36 on 17.5.2016   
+! File created at 17:43 on 2.5.2016   
 ! ----------------------------------------------------------------------  
  
  
-Module HiggsCS_DMLR 
+Module HiggsCS_SMHighScale 
  
 Use Control 
-Use Model_Data_DMLR 
+Use Model_Data_SMHighScale 
 Contains 
  
 Subroutine HiggsCrossSections(mh,ratGG,ratPP,ratWW,ratZZ,ratTT,CS,kont)
@@ -200,4 +200,4 @@ CS(5,i1,4) = -1._dp
 CS(5,i1,5) = -1._dp 
 End Do 
 End Subroutine HiggsCrossSections 
-End Module HiggsCS_DMLR
+End Module HiggsCS_SMHighScale

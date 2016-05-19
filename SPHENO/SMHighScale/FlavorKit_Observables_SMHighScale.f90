@@ -3,16 +3,16 @@
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 8:36 on 17.5.2016   
+! File created at 17:43 on 2.5.2016   
 ! ----------------------------------------------------------------------  
  
  
-Module FlavorKit_Observables_DMLR 
+Module FlavorKit_Observables_SMHighScale 
 Use Control 
-Use Couplings_DMLR 
-Use LoopCouplings_DMLR 
+Use Couplings_SMHighScale 
+Use LoopCouplings_SMHighScale 
 Use LoopFunctions 
-Use LoopMasses_DMLR 
+Use LoopMasses_SMHighScale 
 Use StandardModel 
 
  
@@ -21,7 +21,7 @@ Use StandardModel
 Subroutine Calculate_hLLp(OH2lSL,OH2lSR,BrhtoMuE,BrhtoTauE,BrhtoTauMu)
 
 Implicit None 
-Complex(dp) :: OH2lSL(3,3,3),OH2lSR(3,3,3)
+Complex(dp) :: OH2lSL(3,3,1),OH2lSR(3,3,1)
 
 Real(dp), Intent(out) :: BrhtoMuE 
 Real(dp), Intent(out) :: BrhtoTauE 
@@ -41,11 +41,11 @@ Integer :: i1, gt1, gt2, hLoc
 
 !! NEXT LINE HAVE TO BE PARSED BY SARAH
 ! Checking if there are several generations of Scalars and what is the SM-like doublet
-hLoc = MaxLoc(Abs(ZH(2,:)),1)
+hLoc = 1
 
-mh = Mhh(hLoc)
+mh = Mhh
 
-gamh =gThh(hLoc)
+gamh =gThh
 
 If (.not.L_BR) gamh = 4.5E-3_dp  ! Decays not calculated; using SM value
 
@@ -1399,8 +1399,8 @@ Subroutine Calculate_DeltaMBq(O4dSLL,O4dSRR,O4dSRL,O4dSLR,O4dVRR,O4dVLL,        
 Implicit None 
 Complex(dp) :: O4dSLL(3,3,3,3),O4dSRR(3,3,3,3),O4dSRL(3,3,3,3),O4dSLR(3,3,3,3),O4dVRR(3,3,3,3),      & 
 & O4dVLL(3,3,3,3),O4dVLLSM(3,3,3,3),O4dVRL(3,3,3,3),O4dVLR(3,3,3,3),O4dTLL(3,3,3,3),     & 
-& O4dTLR(3,3,3,3),O4dTRL(3,3,3,3),O4dTRR(3,3,3,3),OH2qSL(3,3,3),OH2qSR(3,3,3),           & 
-& OAh2qSL(3,3,3),OAh2qSR(3,3,3)
+& O4dTLR(3,3,3,3),O4dTRL(3,3,3,3),O4dTRR(3,3,3,3),OH2qSL(3,3,1),OH2qSR(3,3,1),           & 
+& OAh2qSL(3,3,1),OAh2qSR(3,3,1)
 
 Real(dp), Intent(out) :: DeltaMBs 
 Real(dp), Intent(out) :: ratioDeltaMBs 
@@ -1467,20 +1467,20 @@ C2SRR  = O4dTRR(3,i1,3,i1)/norm
 
 
 ! Double Higgs penguins
-Do iS =  1, 3
+Do iS =  1, 1
 HL = OH2qSL(3,i1,iS)
 HR = OH2qSR(3,i1,iS)
-mS = Mhh2(iS)
+mS = Mhh2
 C2LR = C2LR - HL*Conjg(HR)/(mS*norm)
 C1SLL = C1SLL - 0.5_dp*HL**2/(mS*norm)
 C1SRR = C1SRR - 0.5_dp*HR**2/(mS*norm)
 End Do
 
 
-Do iS = 3, 3
+Do iS = 2, 1
 AL = OAh2qSL(3,i1,iS)
 AR = OAh2qSR(3,i1,iS)
-mS = MAh2(iS)
+mS = MAh2
 C2LR = C2LR - AL*Conjg(AR)/(mS*norm)
 C1SLL = C1SLL - 0.5_dp*AL**2/(mS*norm)
 C1SRR = C1SRR - 0.5_dp*AR**2/(mS*norm)
@@ -2701,4 +2701,4 @@ Else!! Different masses are not possible!
 End if 
  
 End Function C1C2 
-End Module FlavorKit_Observables_DMLR 
+End Module FlavorKit_Observables_SMHighScale 

@@ -3,40 +3,34 @@
 ! SARAH References: arXiv:0806.0538, 0909.2863, 1002.0840, 1207.0906, 1309.7223  
 ! (c) Florian Staub, 2013  
 ! ------------------------------------------------------------------------------  
-! File created at 8:41 on 17.5.2016   
+! File created at 17:45 on 2.5.2016   
 ! ----------------------------------------------------------------------  
  
  
-Module RunSM_DMLR 
+Module RunSM_SMHighScale 
  
 Use Control 
 Use LoopFunctions 
 Use Mathematics 
 Use StandardModel 
-Use RGEs_DMLR 
-Use Model_Data_DMLR 
+Use RGEs_SMHighScale 
+Use Model_Data_SMHighScale 
 
 Logical,Private,Save::OnlyDiagonal 
 Contains 
  
- Subroutine RunSM_and_SUSY_RGEs(Qout,gBLinput,g2input,gRinput,g3input,RHO2input,       & 
-& RHO1input,ALP1input,LAM1input,ALP3input,ALP2input,LAM4input,LAM2input,LAM3input,       & 
-& YDRinput,YL1input,YQ1input,YL2input,YQ2input,M23input,mu32input,MU22input,             & 
-& MU12input,vdinput,vuinput,vRinput,gBL,g2,gR,g3,RHO2,RHO1,ALP1,LAM1,ALP3,               & 
-& ALP2,LAM4,LAM2,LAM3,YDR,YL1,YQ1,YL2,YQ2,M23,mu32,MU22,MU12,vd,vu,vR,CKMout,            & 
-& sinW2_out,Alpha_out,AlphaS_out,realCKM)
+ Subroutine RunSM_and_SUSY_RGEs(Qout,g1input,g2input,g3input,Laminput,Yuinput,         & 
+& Ydinput,Yeinput,Muinput,vinput,g1,g2,g3,Lam,Yu,Yd,Ye,Mu,v,CKMout,sinW2_out,            & 
+& Alpha_out,AlphaS_out,realCKM)
 
 Implicit None 
-Real(dp),Intent(in) :: gBLinput,g2input,gRinput,g3input,RHO2input,RHO1input,ALP1input,LAM1input,             & 
-& ALP3input,ALP2input,LAM4input,LAM2input,LAM3input,M23input,mu32input,MU22input,        & 
-& MU12input,vdinput,vuinput,vRinput
+Real(dp),Intent(in) :: g1input,g2input,g3input,vinput
 
-Complex(dp),Intent(in) :: YDRinput(3,3),YL1input(3,3),YQ1input(3,3),YL2input(3,3),YQ2input(3,3)
+Complex(dp),Intent(in) :: Laminput,Yuinput(3,3),Ydinput(3,3),Yeinput(3,3),Muinput
 
-Real(dp),Intent(out) :: gBL,g2,gR,g3,RHO2,RHO1,ALP1,LAM1,ALP3,ALP2,LAM4,LAM2,LAM3,M23,mu32,MU22,              & 
-& MU12,vd,vu,vR
+Real(dp),Intent(out) :: g1,g2,g3,v
 
-Complex(dp),Intent(out) :: YDR(3,3),YL1(3,3),YQ1(3,3),YL2(3,3),YQ2(3,3)
+Complex(dp),Intent(out) :: Lam,Yu(3,3),Yd(3,3),Ye(3,3),Mu
 
 Real(dp), Intent(in) :: Qout 
 Complex(dp), Intent(out) :: CKMout(3,3) 
@@ -48,21 +42,25 @@ Integer :: kont
 Logical :: OnlyDiagonal 
 Logical :: realCKM 
 Real(dp) :: deltaM = 0.000001_dp, test(3)  
-Real(dp) :: scale_save, Qin, tz, dt, g1D(110), g62_SM(62) 
+Real(dp) :: scale_save, Qin, tz, dt, g1D(62), g62_SM(62) 
  
  
 ! Run SUSY RGEs from M_SUSY to Qin 
 Qin=sqrt(getRenormalizationScale()) 
 scale_save = Qin 
-Call ParametersToG110(gBLinput,g2input,gRinput,g3input,RHO2input,RHO1input,           & 
-& ALP1input,LAM1input,ALP3input,ALP2input,LAM4input,LAM2input,LAM3input,YDRinput,        & 
-& YL1input,YQ1input,YL2input,YQ2input,M23input,mu32input,MU22input,MU12input,            & 
-& vdinput,vuinput,vRinput,g1D)
+Call ParametersToG62(g1input,g2input,g3input,Laminput,Yuinput,Ydinput,Yeinput,        & 
+& Muinput,vinput,g1D)
 
-Call GToParameters110(g1D,gBL,g2,gR,g3,RHO2,RHO1,ALP1,LAM1,ALP3,ALP2,LAM4,            & 
-& LAM2,LAM3,YDR,YL1,YQ1,YL2,YQ2,M23,mu32,MU22,MU12,vd,vu,vR)
+If (RunningSUSYparametersLowEnergy) Then 
+tz=Log(Qout/Qin) 
+dt=tz/100._dp 
+Call odeint(g1D,62,0._dp,tz,deltaM,dt,0._dp,rge62,kont)
 
-gBL = Sqrt(3._dp/2._dp)*gBL 
+End if 
+
+Call GToParameters62(g1D,g1,g2,g3,Lam,Yu,Yd,Ye,Mu,v)
+
+g1 = Sqrt(3._dp/5._dp)*g1 
 
 
 ! Run SM RGEs from MZ to Qin 
@@ -82,10 +80,13 @@ Call odeint(g62_SM,62,tz,0._dp,deltaM,dt,0._dp,rge62_SM,kont)
 Call GtoParameters62_SM(g62_SM, g1SM, g2SM, g3SM, lambdaSM, YuSM, YdSM, YeSM, muSM, vevSM) 
  
 ! Overwrite values obtained from SUSY running 
+g1 = g1SM 
 g2 = g2SM 
 g3 = g3SM 
-vd=vevSM/Sqrt(1._dp+TanBeta**2) 
-vu=TanBeta*vd 
+v=vevSM 
+Yu = YuSM 
+Yd = YdSM 
+Ye = YeSM 
 ! Calculate running CKM matrix 
 Call FermionMass(YuSM,1._dp,test,dummy,CKMout,kont) 
  
@@ -99,9 +100,9 @@ AlphaS_out = g3SM**2/(4._dp*Pi)
 Else 
 
 ! Don't run SM RGEs separately 
-CKMout = CKMcomplex 
-sinW2_out = 0.22290_dp 
-Alpha_out = Alpha 
+Call FermionMass(Yu,1._dp,test,dummy,CKMout,kont) 
+sinW2_out = g1**2/(g1**2+g2**2) 
+Alpha_out = sinW2_out*g2**2/(4._dp*Pi) 
 AlphaS_out = g3**2/(4._dp*Pi) 
 End if 
 
@@ -690,4 +691,4 @@ Call ParametersToG62_SM(Dg1,Dg2,Dg3,DLam,DYu,DYd,DYe,DMu,Dv,f)
 Iname = Iname - 1 
  
 End Subroutine rge62_SM  
-End Module RunSM_DMLR 
+End Module RunSM_SMHighScale 
