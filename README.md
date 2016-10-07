@@ -2,7 +2,11 @@ Run SARAH models precompiled by the butler script of SARAH Toolbox.
 
 Try directly here:
 
+<<<<<<< HEAD
 [![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/restrepo/LRmodels-LRSSM-Toolbox)
+=======
+[![Binder](http://mybinder.org/badge.svg)](http://mybinder.org/repo/restrepo/SimplifiedDM-SDFDM-Toolbox)
+>>>>>>> master
 
 Design
 -----------------------------------------------------------------------------
